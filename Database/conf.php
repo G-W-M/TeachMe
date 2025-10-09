@@ -3,9 +3,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 // Database configuration
 $servername = "localhost";
-$username = "root";        // your MySQL username
-$password = "postgres";            // your MySQL password
-$dbname = "teachme";    // database name
+$username = "root";       
+$password = "";        
+$dbname = "teachme";   
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
