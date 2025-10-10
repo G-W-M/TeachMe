@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once("Database/conf.php");
+require_once("database/conf.php");
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -44,3 +44,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>TeachMe | Signup</title>
+  <link rel="stylesheet" href="assets/css/forms.css">
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="signup-wrapper">
+    <div class="signup-box">
+      <h2>TeachMe - Login to Account</h2>
+      <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
+      <form method="POST" action="">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="example@strathmore.edu" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+        <button class = "form-button" type="submit">Login</button>
+        <button>Don't have an account? <a href="signup.php">Sign up here</a></p>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

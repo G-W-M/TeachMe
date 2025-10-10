@@ -1,6 +1,8 @@
 <?php
 include('Database/conf.php');
 
+$error = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
@@ -30,9 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <title>TeachMe | Signup</title>
-  <link rel="stylesheet" href="assets/css/forms.css">
+  <link rel="stylesheet" href="Assets/css/forms.css">
 </head>
 <body>
   <div class="overlay"></div>

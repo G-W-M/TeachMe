@@ -1,0 +1,70 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const quizContainer = document.getElementById("quiz-container");
+  const form = document.getElementById("tutorTestForm");
+  const scoreInput = document.getElementById("scoreInput");
+
+  const questions = [
+    {
+      question: "What does PHP stand for?",
+      options: ["Personal Home Page", "Private Hypertext Processor", "PHP: Hypertext Preprocessor", "Public Hosting Protocol"],
+      correct: 2
+    },
+    {
+      question: "Which PHP function hashes passwords securely?",
+      options: ["hash()", "password_hash()", "md5()", "crypt()"],
+      answer: "password_hash()"
+    },
+    {
+      question: "Which SQL keyword retrieves data from a table?",
+      options: ["GET", "EXTRACT", "SELECT", "SHOW"],
+      answer: "SELECT"
+    },
+    {
+      question: "Which HTML tag is used to create a hyperlink?",
+      options: ["<a>", "<link>", "<url>", "<href>"],
+      answer: "<a>"
+    },
+    {
+      question: "CSS stands for?",
+      options: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style Syntax", "Coding Style Set"],
+      answer: "Cascading Style Sheets"
+    },
+    
+  ];
+
+  // Render quiz
+  questions.forEach((q, i) => {
+    const block = document.createElement("div");
+    block.classList.add("question-block");
+    block.innerHTML = `
+      <p><strong>Q${i + 1}:</strong> ${q.question}</p>
+      ${q.options.map(opt => `
+        <label>
+          <input type="radio" name="q${i}" value="${opt}" required> ${opt}
+        </label><br>
+      `).join('')}
+    `;
+    quizContainer.appendChild(block);
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    let score = 0;
+    questions.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      if (selected && selected.value === q.answer) score++;
+    });
+
+    const percentage = Math.round((score / questions.length) * 100);
+    scoreInput.value = percentage;
+
+    if (percentage >= 70) {
+      alert(`You passed with ${percentage}%! Submitting your result...`);
+    } else {
+      alert(`You scored ${percentage}%. You need 70% to pass.`);
+    }
+
+    form.submit();
+  });
+});
