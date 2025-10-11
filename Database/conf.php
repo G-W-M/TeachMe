@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 // Database configuration
 $servername = "localhost";
 $username = "root";       
-$password = "mariadb";        
+$password = "maria";        
 $dbname = "teachme";   
 
 // Create connection
@@ -15,5 +15,5 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-echo "Database connected successfully!";
+//echo "Database connected successfully!";
 ?>
