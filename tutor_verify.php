@@ -42,3 +42,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+// Fetch all tutors with student info
+$sql = "SELECT t.tutor_id, t.student_id, t.test_score, t.availability, t.performance_score, s.name, s.email
+        FROM tutors t
+        JOIN students s ON t.student_id = s.student_id
+        ORDER BY t.test_score DESC, t.performance_score DESC";
+$result = $conn->query($sql);
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Admin - Tutor Verification</title>
+    <link rel="stylesheet" href="Assets/css/admin.css">
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f4f4f4; }
+        .msg { padding: 10px; background: #e7f5e6; margin-bottom: 15px; border: 1px solid #c7e6c7; }
+        .danger { background: #ffe6e6; border-color: #ffbcbc; }
+    </style>
+</head>
+<body>
+<?php include('Dashboard/admin.php'); ?>
+<div class="container">
+    <h2>Tutor Verification & Management</h2>
+    <?php if (!empty($message)) echo '<div class="msg">'.htmlspecialchars($message).'</div>'; ?>
+
+    <?php if ($result && $result->num_rows > 0): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tutor ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Test Score</th>
+                    <th>Performance Score</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['tutor_id']); ?></td>
+                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['email']); ?></td>
+                    <td><?php echo htmlspecialchars($row['test_score']); ?></td>
+                    <td><?php echo htmlspecialchars($row['performance_score']); ?></td>
+                    <td><?php echo htmlspecialchars($row['availability']); ?></td>
+                    <td>
+                        <!-- Revoke form -->
+                        <form method="POST" style="display:inline-block;" onsubmit="return confirm('Revoke this tutor?');">
+                            <input type="hidden" name="action" value="revoke">
+                            <input type="hidden" name="tutor_id" value="<?php echo intval($row['tutor_id']); ?>">
+                            <button type="submit">Revoke</button>
+                        </form>
+
+                        <!-- Issue certificate form -->
+                        <form method="POST" style="display:inline-block; margin-left:8px;">
+                            <input type="hidden" name="action" value="issue_cert">
+                            <input type="hidden" name="tutor_id" value="<?php echo intval($row['tutor_id']); ?>">
+                            <input type="text" name="criteria" placeholder="Criteria (e.g. Excellent feedback)" required>
+                            <button type="submit">Issue Certificate</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p>No tutors found.</p>
+    <?php endif; ?>
+</div>
+</body>
+</html>   
