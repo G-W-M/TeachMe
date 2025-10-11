@@ -23,5 +23,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('i', $tutor_id);
         $stmt->execute();
         $res = $stmt->get_result();
-        if ($row = $res->fetch_assoc()) {
+        if ($row = $res->fetch_assoc()) 
+            {
             $student_id = intval($row['student_id']);
+              // Delete tutor record
+            $del = $conn->prepare("DELETE FROM tutors WHERE tutor_id = ?");
+            $del->bind_param('i', $tutor_id);
+            $del->execute();
+
+            // Revoke role to learner
+            $upd = $conn->prepare("UPDATE students SET role = 'learner' WHERE student_id = ?");
+            $upd->bind_param('i', $student_id);
+            $upd->execute();
+
+            $message = "Tutor (ID: $tutor_id) revoked successfully.";
+        } else {
+            $message = "Tutor not found.";
+        }
+    }
+}
