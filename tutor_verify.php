@@ -4,6 +4,7 @@
 
 include('Database/conf.php');
 include('session_check.php');
+include('Dashboard/admin.php');
 
 // Only admins allowed
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -41,6 +42,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Tutor not found.";
         }
     }
+    if (isset($_POST['action']) && $_POST['action'] === 'issue_cert' && isset($_POST['tutor_id'])) {
+    $tutor_id = intval($_POST['tutor_id']);
+    $criteria = trim($_POST['criteria']);
+
+    // Store certificate info (make sure you have a 'certificates' table)
+    $stmt = $conn->prepare("INSERT INTO certificates (tutor_id, criteria, issued_on) VALUES (?, ?, NOW())");
+    $stmt->bind_param('is', $tutor_id, $criteria);
+    if ($stmt->execute()) {
+        $message = "Certificate issued successfully for Tutor ID: $tutor_id.";
+    } else {
+        $message = "Failed to issue certificate: " . $conn->error;
+    }
+}
+
 }
 
 // Fetch all tutors with student info
