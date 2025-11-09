@@ -61,6 +61,8 @@ include('../session_check.php');
   <p>Choose an option to get started as a Tutor.</p>
 
   <div class="options">
+    <a href="tutor_dashboard.php" class="btn"> I'm a Tutor </a>
+
     <a href="../tutor_apply.php" class="btn"> Take Tutor Test</a>
    
     <a href="choose_role.php" class="btn back"> Back</a>

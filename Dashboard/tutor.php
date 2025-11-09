@@ -13,3 +13,7 @@
   <a href="../logout.php" class="btn">Logout</a>
 </body>
 </html>
+
+/*The page doesnt do anything ..its should be corrected to make it a page
+ where the tutor can seee the student data/portal for only his students under his tutoring.
+*/
