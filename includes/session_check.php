@@ -1,10 +1,12 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Check if the user is logged in
 if (!isset($_SESSION['student_id']) || !isset($_SESSION['role'])) {
     // Not logged in — redirect to login page
-    header("Location: ../home.html");
+    header("Location: ../login.php");
     exit();
 }
 

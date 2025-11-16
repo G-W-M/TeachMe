@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-  <h2>Welcome, Learner!</h2>
-  <a href="../tutor_apply.php">Apply as Tutor</a><br>
+  <h2>Welcome, <?= htmlspecialchars($_SESSION['name'] ?? 'Learner'); ?>!</h2>
+  <p>Ready to start your learning journey?</p>
   <a href="../logout.php">Logout</a>
 </body>
 </html>

@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       question: "What does PHP stand for?",
       options: ["Personal Home Page", "Private Hypertext Processor", "PHP: Hypertext Preprocessor", "Public Hosting Protocol"],
-      correct: 2
+      answer: "PHP: Hypertext Preprocessor"
     },
     {
       question: "Which PHP function hashes passwords securely?",
@@ -21,15 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       question: "Which HTML tag is used to create a hyperlink?",
-      options: ["<a>", "<link>", "<url>", "<href>"],
-      answer: "<a>"
+      options: ["a", "link", "url", "href"],
+      answer: "a"
     },
     {
       question: "CSS stands for?",
       options: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style Syntax", "Coding Style Set"],
       answer: "Cascading Style Sheets"
-    },
-    
+    }
   ];
 
   // Render quiz
@@ -59,10 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const percentage = Math.round((score / questions.length) * 100);
     scoreInput.value = percentage;
 
+    // Don’t show score, just tell them pass/fail
     if (percentage >= 70) {
-      alert(`You passed with ${percentage}%! Submitting your result...`);
+      alert(" Great job! You have successfully passed the tutor test. Submitting your result...");
     } else {
-      alert(`You scored ${percentage}%. You need 70% to pass.`);
+      alert("You did not meet the 70% requirement. Please try again.");
     }
 
     form.submit();
