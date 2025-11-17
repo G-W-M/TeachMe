@@ -2,7 +2,7 @@
 require_once '../../includes/session_check.php';
 require_once '../../includes/header.php';
 require_once '../../database/conf.php';
-
+require_once('../../includes/logger.php');
 // Check if user is learner using the new function
 require_role('learner');
 

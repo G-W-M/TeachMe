@@ -1,9 +1,10 @@
 <?php
 /**
  * Session Check and Role-based Access Control
+ * Central session management file - should be included first in all pages
  */
 
-// Start session if not already started
+// Start session only if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -91,3 +92,23 @@ function get_current_user_role() {
 function is_user_active() {
     return isset($_SESSION['is_active']) && $_SESSION['is_active'] === true;
 }
+
+/**
+ * Safe session destroy with logging
+ */
+function safe_session_destroy() {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_unset();
+        session_destroy();
+    }
+}
+
+/**
+ * Regenerate session ID for security
+ */
+function regenerate_session() {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
+}
+?>
