@@ -1,180 +1,170 @@
 <?php
-require_once '../../includes/session_check.php';
+require_once('../../includes/session_check.php');
+require_login();
 require_role('admin');
-include '../admin/admin_nav.php';
 
-// Database connection
-require_once '../../database/conf.php';
+require_once('../../database/conf.php');
+require_once('../../includes/logger.php');
 
-// Get statistics
-$stats = [];
-try {
-    // Total users
-    $stmt = $pdo->query("SELECT COUNT(*) FROM users");
-    $stats['total_users'] = $stmt->fetchColumn();
+// Log page access
+logActivity($_SESSION['user_id'], 'PAGE_ACCESS', 'ADMIN', 'Accessed admin dashboard');
 
-    // Total tutors
-    $stmt = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'tutor' AND is_active = 1");
-    $stats['total_tutors'] = $stmt->fetchColumn();
+// Fetch dashboard statistics
+$counts = [];
 
-    // Total learners
-    $stmt = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'learner' AND is_active = 1");
-    $stats['total_learners'] = $stmt->fetchColumn();
+// Total Users
+$q = $conn->query("SELECT COUNT(*) AS c FROM users");
+$counts['users'] = (int)$q->fetch_assoc()['c'];
 
-    // Pending applications
-    $stmt = $pdo->query("SELECT COUNT(*) FROM tutor_applications WHERE status = 'pending'");
-    $stats['pending_applications'] = $stmt->fetchColumn();
+// Total Tutors
+$q = $conn->query("SELECT COUNT(*) AS c FROM users WHERE role = 'tutor'");
+$counts['tutors'] = (int)$q->fetch_assoc()['c'];
 
-    // Active sessions
-    $stmt = $pdo->query("SELECT COUNT(*) FROM sessions WHERE status = 'scheduled'");
-    $stats['active_sessions'] = $stmt->fetchColumn();
+// Total Learners
+$q = $conn->query("SELECT COUNT(*) AS c FROM users WHERE role = 'learner'");
+$counts['learners'] = (int)$q->fetch_assoc()['c'];
 
-    // Open requests
-    $stmt = $pdo->query("SELECT COUNT(*) FROM learning_requests WHERE status = 'open'");
-    $stats['open_requests'] = $stmt->fetchColumn();
-} catch (PDOException $e) {
-    error_log("Dashboard stats error: " . $e->getMessage());
-}
+// Pending Tutor Applications
+$q = $conn->query("SELECT COUNT(*) AS c FROM tutor_applications WHERE status = 'pending'");
+$counts['pending_applications'] = (int)$q->fetch_assoc()['c'];
+
+// Active Sessions
+$q = $conn->query("SELECT COUNT(*) AS c FROM sessions WHERE status = 'scheduled'");
+$counts['active_sessions'] = (int)$q->fetch_assoc()['c'];
+
+// Open Learning Requests
+$q = $conn->query("SELECT COUNT(*) AS c FROM learning_requests WHERE status = 'open'");
+$counts['open_requests'] = (int)$q->fetch_assoc()['c'];
+
+// Recent System Logs
+$q = $conn->query("SELECT sl.*, u.user_name 
+                   FROM system_logs sl 
+                   LEFT JOIN users u ON sl.user_id = u.user_id 
+                   ORDER BY sl.timestamp DESC 
+                   LIMIT 10");
+$recent_logs = $q->fetch_all(MYSQLI_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - TeachMe</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body class="admin-body">
-    <div class="admin-container">
-        <?php include 'admin_nav.php'; ?>
-
-        <div class="admin-main">
-            <div class="admin-header">
-                <h1>Admin Dashboard</h1>
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>TeachMe Admin Dashboard</h1>
                 <div class="user-info">
-                    <div class="notification-bell">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-count">3</span>
-                    </div>
-                    <span>Welcome, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></span>
+                    <span>Welcome, <?php echo $_SESSION['user_name'] ?? 'Admin'; ?></span>
+                    <a href="../auth/logout.php" class="logout-btn">Logout</a>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="admin-content">
-                <!-- Statistics Grid -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Users</h3>
-                        <p class="number"><?php echo $stats['total_users']; ?></p>
-                        <span class="trend">+5% this month</span>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Active Tutors</h3>
-                        <p class="number"><?php echo $stats['total_tutors']; ?></p>
-                        <span class="trend">+2 new</span>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Active Learners</h3>
-                        <p class="number"><?php echo $stats['total_learners']; ?></p>
-                        <span class="trend">+8% growth</span>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Pending Applications</h3>
-                        <p class="number"><?php echo $stats['pending_applications']; ?></p>
-                        <span class="trend">Requires attention</span>
-                    </div>
+    <div class="admin-layout">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <?php include('admin_nav.php'); ?>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <div class="container">
+                <div class="page-header">
+                    <h2>Dashboard Overview</h2>
+                    <p>System statistics and recent activity</p>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>Quick Actions</h3>
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3><?php echo $counts['users']; ?></h3>
+                            <p>Total Users</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <a href="manage_tutors.php" class="btn btn-primary">
-                                <i class="fas fa-users"></i> Manage Tutors
-                            </a>
-                            <a href="manage_sessions.php" class="btn btn-primary">
-                                <i class="fas fa-calendar-alt"></i> View Sessions
-                            </a>
-                            <a href="reports.php" class="btn btn-primary">
-                                <i class="fas fa-chart-bar"></i> Generate Reports
-                            </a>
-                            <a href="system_logs.php" class="btn btn-primary">
-                                <i class="fas fa-history"></i> System Logs
-                            </a>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🎓</div>
+                        <div class="stat-info">
+                            <h3><?php echo $counts['tutors']; ?></h3>
+                            <p>Tutors</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon"></div>
+                        <div class="stat-info">
+                            <h3><?php echo $counts['learners']; ?></h3>
+                            <p>Learners</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon"></div>
+                        <div class="stat-info">
+                            <h3><?php echo $counts['pending_applications']; ?></h3>
+                            <p>Pending Applications</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon"></div>
+                        <div class="stat-info">
+                            <h3><?php echo $counts['active_sessions']; ?></h3>
+                            <p>Active Sessions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon"></div>
+                        <div class="stat-info">
+                            <h3><?php echo $counts['open_requests']; ?></h3>
+                            <p>Open Requests</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>Recent Activity</h3>
-                    </div>
-                    <div class="card-body">
-                        <?php
-                        try {
-                            $stmt = $pdo->query("
-                                SELECT l.action, l.time, u.user_name, u.role 
-                                FROM system_logs l 
-                                LEFT JOIN users u ON l.user_id = u.user_id 
-                                ORDER BY l.time DESC 
-                                LIMIT 10
-                            ");
-                            $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            if ($activities) {
-                                echo '<table class="data-table">';
-                                echo '<thead><tr><th>User</th><th>Role</th><th>Action</th><th>Time</th></tr></thead>';
-                                echo '<tbody>';
-                                foreach ($activities as $activity) {
-                                    echo '<tr>';
-                                    echo '<td>' . htmlspecialchars($activity['user_name'] ?? 'System') . '</td>';
-                                    echo '<td><span class="badge badge-' . ($activity['role'] ?? 'system') . '">' . ucfirst($activity['role'] ?? 'system') . '</span></td>';
-                                    echo '<td>' . htmlspecialchars($activity['action']) . '</td>';
-                                    echo '<td>' . date('M j, Y g:i A', strtotime($activity['time'])) . '</td>';
-                                    echo '</tr>';
-                                }
-                                echo '</tbody></table>';
-                            } else {
-                                echo '<div class="empty-state">No recent activity</div>';
-                            }
-                        } catch (PDOException $e) {
-                            echo '<div class="empty-state">Error loading activity</div>';
-                        }
-                        ?>
-                    </div>
-                </div>
-
-                <!-- System Status -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>System Status</h3>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                            <div>
-                                <h4>Active Sessions</h4>
-                                <p class="number"><?php echo $stats['active_sessions']; ?></p>
-                            </div>
-                            <div>
-                                <h4>Open Requests</h4>
-                                <p class="number"><?php echo $stats['open_requests']; ?></p>
-                            </div>
-                            <div>
-                                <h4>Database</h4>
-                                <p style="color: #28a745;"><i class="fas fa-check-circle"></i> Connected</p>
-                            </div>
-                            <div>
-                                <h4>System Load</h4>
-                                <p style="color: #28a745;"><i class="fas fa-check-circle"></i> Normal</p>
-                            </div>
+                <!-- Recent Activity Section -->
+                <div class="dashboard-section">
+                    <h2>Recent System Activity</h2>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Category</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($recent_logs)): ?>
+                                        <?php foreach ($recent_logs as $log): ?>
+                                            <tr>
+                                                <td><?php echo date('M j, H:i', strtotime($log['timestamp'])); ?></td>
+                                                <td><?php echo $log['user_name'] ?? 'System'; ?></td>
+                                                <td><?php echo htmlspecialchars($log['action']); ?></td>
+                                                <td><?php echo htmlspecialchars($log['category']); ?></td>
+                                                <td><?php echo htmlspecialchars(substr($log['details'], 0, 50)) . '...'; ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center">No recent activity</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -182,7 +172,6 @@ try {
         </div>
     </div>
 
-    <script src="../../assets/js/main.js"></script>
+    <?php require_once('../../includes/footer.php'); ?>
 </body>
-
 </html>

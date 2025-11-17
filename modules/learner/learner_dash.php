@@ -1,5 +1,5 @@
 <?php
-require_once '../../includes/session_check.php';
+require_once '../includes/session_check.php';
 require_once '../../includes/header.php';
 require_once '../../database/conf.php';
 require_once('../../includes/logger.php');
