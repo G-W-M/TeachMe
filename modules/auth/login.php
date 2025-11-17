@@ -1,120 +1,103 @@
 <?php
+ini_set('session.cookie_path', '/');
 session_start();
-require_once("database/conf.php");
 
-$error = ""; // store error messages
+require_once '../../database/conf.php';  // TeachMe database
+require_once '../../includes/logger.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST["email"]);
-    $password = trim($_POST["password"]);
+$error_msg = '';
 
-    if (empty($email) || empty($password)) {
-        $error = "Please enter both email and password.";
-    } else {
-        // Check user in the students table
-        $stmt = $conn->prepare("SELECT * FROM students WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $email = trim($_POST["email"]);
+  $password = trim($_POST["password"]);
 
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
+  if (empty($email) || empty($password)) {
+    $error_msg = "Please enter both email and password.";
+  } else {
 
-            if (password_verify($password, $user["password_hash"])) {
-                // Store session info
-                $_SESSION["student_id"] = $user["student_id"];
-                $_SESSION["email"] = $user["email"];
-                $_SESSION["role"] = $user["role"];
-                $_SESSION["name"] = $user["full_name"];
+    // Fetch user from TeachMe database
+    $stmt = $conn->prepare("
+            SELECT user_id, user_name, email, password_hash, role, is_active  
+            FROM users 
+            WHERE email = ?
+        ");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-                // Redirect to Choose Role page
-                header("Location: Dashboard/choose_role.php");
-                exit;
-            } else {
-                $error = "Incorrect password.";
-            }
+    if ($result->num_rows === 1) {
+      $user = $result->fetch_assoc();
+
+      // Check verification
+      if (!$user['is_active']) {
+        $error_msg = "Please verify your email before logging in.";
+      } elseif (password_verify($password, $user['password_hash'])) {
+
+        // Set session
+        $_SESSION['user_id']   = $user['user_id'];
+        $_SESSION['user_name'] = $user['user_name'];
+        $_SESSION['role'] = $user['role'];
+        $_SESSION['email']     = $user['email'];
+
+        // Log success
+        logActivity($user['user_id'], "LOGIN", "Authentication", "User logged in successfully.");
+
+        // Redirect by role
+        if ($user['role'] === "admin") {
+
+          header("Location: ../admin/admin_dash.php");
+        } elseif ($user['role'] === "tutor") {
+
+          header("Location: ../tutor/tutor_dash.php");
         } else {
-            $error = "No account found with that email.";
+
+          header("Location: ../learner/learner_dash.php");
         }
+
+        exit;
+      } else {
+        $error_msg = "Incorrect password.";
+        logActivity(0, "FAILED_LOGIN", "Authentication", "Incorrect password for $email.");
+      }
+    } else {
+      $error_msg = "No account found with that email.";
+      logActivity(0, "FAILED_LOGIN", "Authentication", "Unknown email used: $email.");
     }
+  }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
-  <title>TeachMe | Login</title>
-  <link rel="stylesheet" href="assets/css/forms.css">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f5f6fa;
-    }
-    .signup-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .signup-box {
-      background: white;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      width: 400px;
-      text-align: center;
-    }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    .form-button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      width: 100%;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.3s;
-    }
-    .form-button:hover {
-      background-color: #2980b9;
-    }
-    .error {
-      color: red;
-      margin-bottom: 10px;
-    }
-    .signup-link {
-      margin-top: 15px;
-      font-size: 14px;
-    }
-    .signup-link a {
-      color: #3498db;
-      text-decoration: none;
-    }
-    .signup-link a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <title>Login - TeachMe</title>
+  <link rel="stylesheet" href="../../assets/css/auth.css">
 </head>
+
 <body>
-  <div class="signup-wrapper">
-    <div class="signup-box">
-      <h2>TeachMe - Login</h2>
-      <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
+  <div class="login-wrapper">
+    <div class="login-box">
+      <h2>Login</h2>
+
+      <?php if (!empty($error_msg)): ?>
+        <p class="error"><?php echo htmlspecialchars($error_msg); ?></p>
+      <?php endif; ?>
+
       <form method="POST" action="">
-        <input type="email" name="email" placeholder="example@strathmore.edu" required>
+        <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
-        <button class="form-button" type="submit">Login</button>
+        <button type="submit" name="login" class="form-button">Login</button>
       </form>
-      <p class="signup-link">Don't have an account? <a href="signup.php">Sign up here</a></p>
+
+      <script src="../../assets/js/forms.js"></script>
+      <script src="../../assets/js/notification.js"></script>
+
+      <p class="login-link">Don't have an account?
+        <a href="signup.php">Sign Up</a>
+      </p>
     </div>
   </div>
 </body>
+
 </html>

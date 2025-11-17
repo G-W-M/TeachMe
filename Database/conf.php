@@ -1,21 +1,43 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-// Database configuration
-$host = "127.0.0.1";
-$port = "3307";
-$servername = "localhost";
-$username = "root";       
-$password = "mariadb";        
-$dbname = "teachme";   
 
-// Create connection
-$conn = new mysqli($host, $username, $password, $dbname, $port);
+/**
+ * Database Configuration
+ */
+class Database
+{
+    private $host = '127.0.0.1';
+    private $port = 3307;
+    private $db_name = 'teachme';
+    private $username = 'root';
+    private $password = 'mariadb';
+    public $conn;
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    public function getConnection()
+    {
+        $this->conn = null;
+
+        try {
+            $this->conn = new mysqli(
+                $this->host,
+                $this->username,
+                $this->password,
+                $this->db_name,
+                $this->port
+            );
+
+            if ($this->conn->connect_error) {
+                throw new Exception("Connection failed: " . $this->conn->connect_error);
+            }
+
+            $this->conn->set_charset("utf8mb4");
+        } catch (Exception $e) {
+            die("Database error: " . $e->getMessage());
+        }
+
+        return $this->conn;
+    }
 }
 
-echo "Database connected successfully!";
-?>
+// Create global connection
+$database = new Database();
+$conn = $database->getConnection();

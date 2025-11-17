@@ -18,8 +18,8 @@
       <h2>Welcome to TeachMe</h2>
       <p>Your peer-to-peer learning platform.</p>
       <div class="form-button">
-        <a href="login.php" class="btn">Login</a>
-        <a href="signup.php" class="btn">Sign Up</a>
+        <a href="../TeachMe/modules/auth/login.php" class="btn">Login</a>
+        <a href="../TeachMe/modules/auth/signup.php" class="btn">Sign Up</a>
       </div>
     </div>
   </body>
