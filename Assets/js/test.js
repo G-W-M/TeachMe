@@ -68,3 +68,30 @@ document.addEventListener("DOMContentLoaded", () => {
     form.submit();
   });
 });
+
+/*// test.js
+document.addEventListener("DOMContentLoaded", () => {
+    const quizForm = document.getElementById("quizForm");
+    if (!quizForm) return;
+
+    quizForm.addEventListener("submit", e => {
+        e.preventDefault();
+        let score = 0;
+        const total = quizForm.querySelectorAll("input[type='radio']:checked").length;
+
+        quizForm.querySelectorAll(".question").forEach(q => {
+            const correct = q.dataset.correct;
+            const selected = q.querySelector("input[type='radio']:checked")?.value;
+            if (selected === correct) score++;
+        });
+
+        const percentage = (score / total) * 100;
+        alert(`Your score: ${percentage}%`);
+        if (percentage >= 70) {
+            alert("Congratulations! You passed the test.");
+        } else {
+            alert("Sorry, you did not reach the passing score.");
+        }
+    });
+});
+*/

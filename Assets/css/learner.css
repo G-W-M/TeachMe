@@ -1,0 +1,37 @@
+body.learner-body {
+    background-color: #f9fbfd;
+}
+
+.learner-header {
+    background-color: #0059b3;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.learner-card {
+    background-color: rgba(255,255,255,0.95);
+    border-left: 4px solid #003366;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
+
+.learner-card h3 {
+    color: #0059b3;
+}
+
+.button-primary {
+    background-color: #003366;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.button-primary:hover {
+    background-color: #0059b3;
+}

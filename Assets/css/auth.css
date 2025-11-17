@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  height: 100vh;
+  width: 100%;
+  background: url('../img/bg.jpeg') no-repeat center center;
+  background-size: 400px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+
+/* WRAPPER FOR CENTERING AUTH FORMS */
+.signup-wrapper,
+.login-wrapper {
+position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* AUTH CONTAINER BOX */
+.signup-box,
+.login-box {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 40px 50px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 380px;
+}
+
+
+/* INPUT FIELDS */
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+/* BUTTON */
+.form-button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 0 8px;
+  background-color: #003366;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+}
+
+.form-button:hover {
+    background-color: #0059b3;
+}
+
+/* ERROR MESSAGE */
+.error {
+    color: red;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+/* AFTER-FORM LINK */
+.signup-link, 
+.login-link {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.signup-link a,
+.login-link a {
+    color: #0059b3;
+    text-decoration: none;
+}
+
+.signup-link a:hover,
+.login-link a:hover {
+    text-decoration: underline;
+}
